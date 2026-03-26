@@ -1,0 +1,78 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: agenticlabs
+  datasource:
+    url: jdbc:h2:file:./data/agenticlabs
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  # Spring AI configuration
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:not-configured}
+      chat:
+        options:
+          model: gpt-4o
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:not-configured}
+      chat:
+        options:
+          model: claude-sonnet-4-6
+
+  # Quartz scheduler
+  quartz:
+    job-store-type: memory
+    overwrite-existing-jobs: false
+    wait-for-jobs-to-complete-on-shutdown: true
+    properties:
+      org.quartz.threadPool.threadCount: 5
+
+# Embabel configuration
+embabel:
+  agent:
+    default-llm: ${DEFAULT_LLM:gpt-4o}
+
+# Application configuration
+app:
+  default-model: ${DEFAULT_MODEL:openai}   # "openai" or "anthropic"
+  jwt:
+    secret: ${JWT_SECRET:agenticlabs-default-secret-change-in-production-minimum-32-chars}
+    expiration-ms: 86400000  # 24 hours
+  workspace:
+    path: ${WORKSPACE_PATH:./workspace}
+  skills:
+    path: ${SKILLS_PATH:./skills}
+  admin:
+    password: ${ADMIN_PASSWORD:admin}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.agenticlabs: DEBUG
+    org.springframework.ai: INFO
+    com.embabel: INFO
