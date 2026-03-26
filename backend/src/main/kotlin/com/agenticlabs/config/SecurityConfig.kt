@@ -29,6 +29,7 @@ class SecurityConfig(private val jwtService: JwtService) {
                     .requestMatchers(
                         "/api/auth/**",
                         "/ws/**",
+                        "/public/**",
                         "/h2-console/**",
                         "/actuator/health",
                         "/actuator/info"

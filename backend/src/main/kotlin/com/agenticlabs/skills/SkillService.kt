@@ -89,7 +89,7 @@ class SkillService(private val props: AppProperties) {
     }
 
     fun getSkill(name: String): Skill? {
-        // Check workspace first
+        // Check workspace first (supports nested names like "community/sql-expert")
         val workspacePath = skillsDir.resolve("$name.md")
         if (Files.exists(workspacePath)) {
             return Skill(name = name, content = workspacePath.readText(), tier = SkillTier.WORKSPACE)
@@ -98,8 +98,8 @@ class SkillService(private val props: AppProperties) {
     }
 
     fun updateSkill(name: String, content: String): Skill {
-        Files.createDirectories(skillsDir)
         val path = skillsDir.resolve("$name.md")
+        Files.createDirectories(path.parent) // create intermediate dirs for nested names
         path.writeText(content)
         return Skill(name = name, content = content, tier = SkillTier.WORKSPACE)
     }

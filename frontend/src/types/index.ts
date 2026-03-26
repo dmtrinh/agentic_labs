@@ -113,6 +113,62 @@ export interface ToolDefinition {
   enabled: boolean
 }
 
+// ---- Credentials ----
+export interface Credential {
+  name: string
+  type: string
+  key: string       // masked: "****" if set
+  username: string
+  extra: string
+}
+
+export interface CreateCredentialRequest {
+  name: string
+  type: string
+  key?: string
+  username?: string
+  extra?: string
+}
+
+// ---- Providers ----
+export interface Provider {
+  name: string
+  configured: boolean
+  credential: string
+  hasKey: boolean
+  baseUrl: string
+  models: string[]
+}
+
+// ---- Channels ----
+export interface ChannelStatus {
+  name: string
+  running: boolean
+  type: string
+  enabled: boolean
+  description: string
+}
+
+// ---- Marketplace ----
+export interface MarketplaceTarget {
+  label: string
+  value: string
+}
+
+export interface MarketplaceSkillEntry {
+  source: string
+  name: string
+  description: string
+  author: string
+  stars: number
+  tags: string[]
+}
+
+// ---- Config ----
+export interface ConfigSection {
+  [key: string]: unknown
+}
+
 // ---- WebSocket ----
 export interface WsEvent {
   type: 'message' | 'stream_token' | 'task_update' | 'task_status' | 'error'

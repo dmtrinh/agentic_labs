@@ -7,7 +7,11 @@ import type {
   Skill,
   FileEntry,
   ScheduledJob, CreateJobRequest,
-  ToolDefinition
+  ToolDefinition,
+  Credential, CreateCredentialRequest,
+  Provider,
+  ChannelStatus,
+  MarketplaceTarget
 } from '../types'
 
 const api = axios.create({ baseURL: '/api' })
@@ -104,6 +108,58 @@ export const systemApi = {
   health: () => api.get('/system/health').then(r => r.data),
   version: () => api.get('/system/version').then(r => r.data),
   info: () => api.get('/system/info').then(r => r.data)
+}
+
+// --- Credentials ---
+export const credentialsApi = {
+  list: () => api.get<Credential[]>('/credentials').then(r => r.data),
+  get: (name: string) => api.get<Credential>(`/credentials/${name}`).then(r => r.data),
+  create: (req: CreateCredentialRequest) =>
+    api.post<Credential>('/credentials', req).then(r => r.data),
+  update: (name: string, req: Partial<CreateCredentialRequest>) =>
+    api.put<Credential>(`/credentials/${name}`, req).then(r => r.data),
+  delete: (name: string) => api.delete(`/credentials/${name}`)
+}
+
+// --- Providers ---
+export const providersApi = {
+  list: () => api.get<Provider[]>('/providers').then(r => r.data),
+  update: (name: string, data: { credential?: string; baseUrl?: string }) =>
+    api.put(`/providers/${name}`, data).then(r => r.data)
+}
+
+// --- Channels ---
+export const channelsApi = {
+  list: () => api.get<Record<string, ChannelStatus>>('/channels').then(r => r.data),
+  get: (name: string) => api.get<ChannelStatus>(`/channels/${name}`).then(r => r.data),
+  update: (name: string, config: Record<string, unknown>) =>
+    api.put(`/channels/${name}`, { config }).then(r => r.data),
+  start: (name: string) => api.post(`/channels/${name}/start`).then(r => r.data),
+  stop: (name: string) => api.post(`/channels/${name}/stop`).then(r => r.data)
+}
+
+// --- Marketplace ---
+export const marketplaceApi = {
+  targets: () => api.get<MarketplaceTarget[]>('/marketplace/targets').then(r => r.data),
+  check: (source: string, name: string, agent?: string) =>
+    api.get<{ installed: boolean }>(`/marketplace/check/${source}/${name}`, {
+      params: agent !== undefined ? { agent } : {}
+    }).then(r => r.data),
+  install: (source: string, name: string, agent = '') =>
+    api.post('/marketplace/install', { source, name, agent }).then(r => r.data)
+}
+
+// --- Config ---
+export const configApi = {
+  get: () => api.get('/config').then(r => r.data),
+  getYaml: () => api.get<{ yaml: string }>('/config/yaml').then(r => r.data),
+  validate: (yaml: string) =>
+    api.post<{ valid: boolean; error?: string; line?: number }>('/config/validate', { yaml }).then(r => r.data),
+  patch: (sections: Record<string, unknown>) =>
+    api.patch('/config', { sections }).then(r => r.data),
+  updateSection: (section: string, data: Record<string, unknown>) =>
+    api.put(`/config/${section}`, { data }).then(r => r.data),
+  restart: () => api.post('/config/restart').then(r => r.data)
 }
 
 export default api
